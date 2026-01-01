@@ -11,6 +11,7 @@ import org.bhaduri.tarangdbservice.entities.Calltable;
 import org.bhaduri.tarangdbservice.entities.Minutedata;
 import org.bhaduri.tarangdbservice.entities.Validatecall;
 import org.bhaduri.tarangdbservice.services.MasterDataServices;
+import org.bhaduri.tarangdto.ValidateCallRec;
 
 /**
  *
@@ -22,50 +23,171 @@ public class TarangValidate {
         System.out.println("Hello World!");
         List<ScripsDTO> scriplist = new Scrips().getScripList();
         double price;
+        double calculatedMargin = 0;
         String callone;
-        String calltwo;
-        
-        String scrip;
-        
+        String calltwo;        
+        String scrip;        
         Date startdate;
         Date enddate;
-        for (int i = 0; i < scriplist.size(); i++) {
-            MasterDataServices mds = new MasterDataServices();
+        MasterDataServices mds = new MasterDataServices();
+        Validatecall oldestrec = new Validatecall();
+        for (int i = 0; i < scriplist.size(); i++) {            
             List<Calltable> callListTwoMonths = mds.getCaldataForTwoMonths(scriplist.get(i).getScripId());
             scrip= scriplist.get(i).getScripId();
             for (int i1 = 0; i1 < callListTwoMonths.size()-1; i1++){
-                Validatecall record = new Validatecall();
+                
+                ValidateCallRec record = new ValidateCallRec();
                 price = callListTwoMonths.get(i1+1).getPrice();
                 callone = callListTwoMonths.get(i1+1).getCallone();
                 calltwo = callListTwoMonths.get(i1+1).getCalltwo();
                 startdate = callListTwoMonths.get(i1+1).getCalltablePK().getLastupdateminute();                
                 enddate = callListTwoMonths.get(i1).getCalltablePK().getLastupdateminute();
                 
+                record.setScripId(callListTwoMonths.get(i1+1).getCalltablePK().getScripid());
+                record.setCallGenerationTimeStamp(callListTwoMonths.get(i1+1).getCalltablePK().getLastupdateminute());
+                record.setPrice(price);
+                record.setCallVersionOne(callone);               
+                record.setCallVersionTwo(calltwo);
+                
                 if((callone.equals("buy") && calltwo.equals("buy"))||
                    (callone.equals("buy") && calltwo.equals("no"))||
                    (callone.equals("no") && calltwo.equals("buy"))){
-                   List<Minutedata> validbuydata = mds.getValidBuyCallData(scrip, 
-                           startdate, enddate, price);
+                   double maxprice = mds.getBuyMaxMinutePrice(scrip, startdate, enddate);
+                   if(price<maxprice){
+                       calculatedMargin = maxprice-price;
+                   }
+                   if(price>maxprice){
+                       calculatedMargin = 0.00;
+                   }
                    if(callone.equals("buy")){
-                       
+                      record.setMarginOne(calculatedMargin);
+                      if(calculatedMargin == 0.00){
+                          record.setOutcomeOne("fail");
+                      } else {
+                          record.setOutcomeOne("pass");
+                      }
+                   }
+                   if(calltwo.equals("buy")){
+                      record.setMarginTwo(calculatedMargin);
+                      if(calculatedMargin == 0.00){
+                          record.setOutcomeTwo("fail");
+                      } else {
+                          record.setOutcomeTwo("pass");
+                      }
                    }
                    
-                }
+                   if(callone.equals("no")){
+                       record.setMarginOne(0.00);
+                       record.setOutcomeOne("NA");
+                   }
+                   if(calltwo.equals("no")){
+                       record.setMarginTwo(0.00);
+                       record.setOutcomeTwo("NA");
+                   }
+                } // sell & sell,  sell & no,  no & sell
                 
-                if((callone.equals("sell") && calltwo.equals("sell"))||
-                   (callone.equals("sell") && calltwo.equals("no"))||
-                   (callone.equals("no") && calltwo.equals("sell"))){
-                   List<Minutedata> validselldata = mds.getValidSellCallData(scrip, 
-                           startdate, enddate, price);
-                }
+                if ((callone.equals("sell") && calltwo.equals("sell"))
+                        || (callone.equals("sell") && calltwo.equals("no"))
+                        || (callone.equals("no") && calltwo.equals("sell"))) {
+                    double minprice = mds.getSelMinMinutePrice(scrip, startdate, enddate);
+                    if (price > minprice) {
+                        calculatedMargin = price - minprice;
+                    }
+                    if (price < minprice) {
+                        calculatedMargin = 0.00;
+                    }
+                    if(callone.equals("sell")){
+                      record.setMarginOne(calculatedMargin);
+                      if(calculatedMargin == 0.00){
+                          record.setOutcomeOne("fail");
+                      } else {
+                          record.setOutcomeOne("pass");
+                      }
+                   }
+                   if(calltwo.equals("sell")){
+                      record.setMarginTwo(calculatedMargin);
+                      if(calculatedMargin == 0.00){
+                          record.setOutcomeTwo("fail");
+                      } else {
+                          record.setOutcomeTwo("pass");
+                      }
+                   }
+                   
+                   if(callone.equals("no")){
+                       record.setMarginOne(0.00);
+                       record.setOutcomeOne("NA");
+                   }
+                   if(calltwo.equals("no")){
+                       record.setMarginTwo(0.00);
+                       record.setOutcomeTwo("NA");
+                   }
+                } // sell & sell,  sell & no,  no & sell
                 
-                if((callone.equals("buy") && calltwo.equals("sell"))||
-                        (callone.equals("sell") && calltwo.equals("buy"))){
-                   List<Minutedata> validbuydata = mds.getValidBuyCallData(scrip, 
-                           startdate, enddate, price);
-                   List<Minutedata> validselldata = mds.getValidSellCallData(scrip, 
-                           startdate, enddate, price);
-                }
+                if ((callone.equals("buy") && calltwo.equals("sell"))
+                        || (callone.equals("sell") && calltwo.equals("buy"))) {
+                    double maxprice = mds.getBuyMaxMinutePrice(scrip, startdate,
+                            enddate);
+                    double minprice = mds.getSelMinMinutePrice(scrip, startdate,
+                            enddate);
+                    if (callone.equals("buy") || calltwo.equals("buy")) {
+                        if (price < maxprice) {
+                            calculatedMargin = maxprice - price;
+                        }
+                        if (price > maxprice) {
+                            calculatedMargin = 0.00;
+                        }
+                    }
+                    if(callone.equals("buy")){
+                      record.setMarginOne(calculatedMargin);
+                      if(calculatedMargin == 0.00){
+                          record.setOutcomeOne("fail");
+                      } else {
+                          record.setOutcomeOne("pass");
+                      }
+                   }
+                   if(calltwo.equals("buy")){
+                      record.setMarginTwo(calculatedMargin);
+                      if(calculatedMargin == 0.00){
+                          record.setOutcomeTwo("fail");
+                      } else {
+                          record.setOutcomeTwo("pass");
+                      }
+                   }
+                   
+                    if (callone.equals("sell") || calltwo.equals("sell")) {
+                        if (price > minprice) {
+                            calculatedMargin = price - minprice;
+                        }
+                        if (price < minprice) {
+                            calculatedMargin = 0.00;
+                        }
+                        if (callone.equals("sell")) {
+                            record.setMarginOne(calculatedMargin);
+                            if (calculatedMargin == 0.00) {
+                                record.setOutcomeOne("fail");
+                            } else {
+                                record.setOutcomeOne("pass");
+                            }
+                        }
+                        if (calltwo.equals("sell")) {
+                            record.setMarginTwo(calculatedMargin);
+                            if (calculatedMargin == 0.00) {
+                                record.setOutcomeTwo("fail");
+                            } else {
+                                record.setOutcomeTwo("pass");
+                            }
+                        }
+                    }
+                }// sell & buy
+                
+                if (callone.equals("no") && calltwo.equals("no")) {
+                    record.setMarginOne(0.00);
+                    record.setOutcomeOne("NA");
+                    record.setMarginTwo(0.00);
+                    record.setOutcomeTwo("NA");
+                } // no & no
+                //insert into validatecall
+                mds.insertValidateCall(record);
             }
         }
     }
