@@ -3,12 +3,13 @@
  */
 
 package org.farmon.tarangvalidate;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import org.bhaduri.tarangdto.ScripsDTO;
 import org.bhaduri.tarangcall.scrips.Scrips;
 import org.bhaduri.tarangdbservice.entities.Calltable;
-import org.bhaduri.tarangdbservice.entities.Minutedata;
 import org.bhaduri.tarangdbservice.entities.Validatecall;
 import org.bhaduri.tarangdbservice.services.MasterDataServices;
 import org.bhaduri.tarangdto.ValidateCallRec;
@@ -19,15 +20,19 @@ import org.bhaduri.tarangdto.ValidateCallRec;
  */
 public class TarangValidate {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
         System.out.println("Hello World!");
         List<ScripsDTO> scriplist = new Scrips().getScripList();
         double price;
         double calculatedMargin = 0;
         String callone;
         String calltwo;        
-        String scrip;        
+        String scrip;  
+        Date tempstartdate;
+        String modifiedString;
         Date startdate;
+        String dateString;
+        
         Date enddate;
         MasterDataServices mds = new MasterDataServices();
         Validatecall oldestrec = new Validatecall();
@@ -40,7 +45,13 @@ public class TarangValidate {
                 price = callListTwoMonths.get(i1+1).getPrice();
                 callone = callListTwoMonths.get(i1+1).getCallone();
                 calltwo = callListTwoMonths.get(i1+1).getCalltwo();
-                startdate = callListTwoMonths.get(i1+1).getCalltablePK().getLastupdateminute();                
+                
+                tempstartdate = callListTwoMonths.get(i1).getCalltablePK().getLastupdateminute();                
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                dateString = sdf.format(tempstartdate);
+                modifiedString = dateString.substring(0, 11) + "09:16:00.000";
+                startdate = sdf.parse(modifiedString);
+                
                 enddate = callListTwoMonths.get(i1).getCalltablePK().getLastupdateminute();
                 
                 record.setScripId(callListTwoMonths.get(i1+1).getCalltablePK().getScripid());
@@ -54,7 +65,7 @@ public class TarangValidate {
                    (callone.equals("no") && calltwo.equals("buy"))){
                    double maxprice = mds.getBuyMaxMinutePrice(scrip, startdate, enddate);
                    if(price<maxprice){
-                       calculatedMargin = maxprice-price;
+                       calculatedMargin = maxprice;
                    }
                    if(price>maxprice){
                        calculatedMargin = 0.00;
@@ -91,7 +102,7 @@ public class TarangValidate {
                         || (callone.equals("no") && calltwo.equals("sell"))) {
                     double minprice = mds.getSelMinMinutePrice(scrip, startdate, enddate);
                     if (price > minprice) {
-                        calculatedMargin = price - minprice;
+                        calculatedMargin = minprice;
                     }
                     if (price < minprice) {
                         calculatedMargin = 0.00;
@@ -131,7 +142,7 @@ public class TarangValidate {
                             enddate);
                     if (callone.equals("buy") || calltwo.equals("buy")) {
                         if (price < maxprice) {
-                            calculatedMargin = maxprice - price;
+                            calculatedMargin = maxprice;
                         }
                         if (price > maxprice) {
                             calculatedMargin = 0.00;
@@ -156,7 +167,7 @@ public class TarangValidate {
                    
                     if (callone.equals("sell") || calltwo.equals("sell")) {
                         if (price > minprice) {
-                            calculatedMargin = price - minprice;
+                            calculatedMargin = minprice;
                         }
                         if (price < minprice) {
                             calculatedMargin = 0.00;
