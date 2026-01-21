@@ -206,13 +206,20 @@ public class FillValidateCall {
                 //insert into validatecall
                 mds.insertValidateCall(record);
             }
+            if(noOfResults ==2){
+                oldestrec = mds.getOldestValidatecallRec(scrip);
+                int deletedCount = mds.deleteOldestValidatecallRec(
+                        oldestrec.getValidatecallPK().getScripid(), 
+                        oldestrec.getValidatecallPK().getLastupdateminute());
+                System.out.println("Number of records deleted = " + deletedCount);
+            }
         }
         
-        if(noOfResults ==2){
-            oldestrec = mds.getOldestValidatecallRec();
-            int deletedCount = mds.deleteOldestValidatecallRec(oldestrec);
-            System.out.println("Number of records deleted = " + deletedCount);
-        }
+//        if(noOfResults ==2){
+//            oldestrec = mds.getOldestValidatecallRec();
+//            int deletedCount = mds.deleteOldestValidatecallRec(oldestrec);
+//            System.out.println("Number of records deleted = " + deletedCount);
+//        }
     }
 
     public int getNoOfResults() {

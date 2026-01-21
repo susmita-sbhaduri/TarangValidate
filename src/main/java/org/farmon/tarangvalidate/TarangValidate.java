@@ -23,8 +23,8 @@ public class TarangValidate {
 
     public static void main(String[] args) throws ParseException {
         System.out.println("Hello World!");
-        new FillValidateCall(61).updateValidatecall();
-//        new FillValidateCall(2).updateValidatecall();
+//        new FillValidateCall(61).updateValidatecall();
+        new FillValidateCall(2).updateValidatecall();
         
 //        List<ScripsDTO> scriplist = new Scrips().getScripList();
 //        double price;
