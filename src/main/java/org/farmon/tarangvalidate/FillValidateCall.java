@@ -211,7 +211,7 @@ public class FillValidateCall {
                 int deletedCount = mds.deleteOldestValidatecallRec(
                         oldestrec.getValidatecallPK().getScripid(), 
                         oldestrec.getValidatecallPK().getLastupdateminute());
-                System.out.println("Number of records deleted = " + deletedCount);
+//                System.out.println("Number of records deleted = " + deletedCount);
             }
         }
         

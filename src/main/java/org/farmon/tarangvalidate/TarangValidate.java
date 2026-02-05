@@ -4,16 +4,6 @@
 
 package org.farmon.tarangvalidate;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import org.bhaduri.tarangdto.ScripsDTO;
-import org.bhaduri.tarangcall.scrips.Scrips;
-import org.bhaduri.tarangdbservice.entities.Calltable;
-import org.bhaduri.tarangdbservice.entities.Validatecall;
-import org.bhaduri.tarangdbservice.services.MasterDataServices;
-import org.bhaduri.tarangdto.ValidateCallRec;
-import org.farmon.tarangvalidate.FillValidateCall;
 
 /**
  *
@@ -22,7 +12,7 @@ import org.farmon.tarangvalidate.FillValidateCall;
 public class TarangValidate {
 
     public static void main(String[] args) throws ParseException {
-        System.out.println("Hello World!");
+//        System.out.println("Hello World!");
 //        new FillValidateCall(61).updateValidatecall();
         new FillValidateCall(2).updateValidatecall();
         
