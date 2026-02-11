@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
 
-package org.farmon.tarangvalidate;
+package org.bhaduri.tarangvalidate;
 import java.text.ParseException;
 
 /**

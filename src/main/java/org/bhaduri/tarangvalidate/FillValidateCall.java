@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package org.farmon.tarangvalidate;
+package org.bhaduri.tarangvalidate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -45,6 +45,7 @@ public class FillValidateCall {
             List<Calltable> callList = mds.getValidateCallsForDuration
         (scriplist.get(i).getScripId(), noOfResults);
             scrip= scriplist.get(i).getScripId();
+            
             for (int i1 = 0; i1 < callList.size()-1; i1++){
                 
                 ValidateCallRec record = new ValidateCallRec();
